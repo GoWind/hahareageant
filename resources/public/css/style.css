@@ -1,0 +1,11 @@
+/* some style */
+.clearbutton {background: black;
+              color: white;
+              border: 0px;
+              display: inline;}
+.submitbutton {background: blue;
+               color: white;
+               border: 0px;}
+.borderedlistitem {border: 2px solid;}
+.clickedlistbuttonitem {:background: black;color: green; border: 1px solid;}
+.listbuttonitem {:background white; color:black;}
