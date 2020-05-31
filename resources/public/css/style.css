@@ -9,3 +9,11 @@
 .borderedlistitem {border: 2px solid;}
 .clickedlistbuttonitem {:background: black;color: green; border: 1px solid;}
 .listbuttonitem {:background white; color:black;}
+
+.globaltasklist {
+  list-style: none;
+}
+
+.expandablepointer {
+  cursor: pointer;
+}

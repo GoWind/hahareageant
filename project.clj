@@ -11,11 +11,16 @@
                  [org.clojure/core.async  "1.2.603"]
                  [cljs-http "0.1.46"]
                  [cljs-ajax "0.8.0"]
+                 [cheshire "5.10.0"]
                  [reagent "1.0.0-alpha2"]
-                 
+
+                  ;;server-side
+                 [ring/ring-core "1.8.1"] 
+                 [ring/ring-devel "1.8.1"]
                  [clj-jgit "1.0.0-beta3"]]
 
   :plugins [[lein-figwheel "0.5.20"]
+            [lein-cljfmt "0.6.7"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src-cljs" "src-clj"]
