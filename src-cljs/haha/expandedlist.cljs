@@ -25,6 +25,19 @@
                            [k (assoc v :checked checked)]
                            [k v]))
                        r)))))
+(defn add-entry
+  [state parent]
+  ;;TODO: change rand-int into something different
+  (let [new-id (str "step " parent "-" (rand-int 5000))]
+    (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})))
+
+(defn set-task-key
+  [state task-id k value]
+  (assoc-in state [:results task-id k] value))
+
+(defn update-task-key
+  [state task-id k f]
+  (update-in state [:results task-id k] f))
 
 (defn task-tree?
   [task]
@@ -40,21 +53,32 @@
 
 (defn render-task-tree
   [task state-atom]
-  (let [{:keys [id subtree text expand checked]} task
+  (let [{:keys [id subtree text expand checked focus]} task
         tree? (not (empty? subtree))]
+    (println "focus is " (keys task))
       ^{:key id} 
-      [:li {:class "tasktree"}
-       [:span {:on-click #(swap! state-atom update-in [:results id :expand] not)
-               :class    (if tree? "expandablepointer" "")}  
+      [:li {:class "tasktree"
+            :on-mouse-over  #(swap! state-atom assoc-in  [:results id :focus] true)
+            :on-mouse-leave #(swap! state-atom assoc-in  [:results id :focus] false)}
+
+       [:span {:on-click #(swap! state-atom update-task-key id :expand not)
+               :class    (if tree? "expandablepointer" "")
+               :on-hover (fn [e] (println e))}  
         (if (:expand task) "\u25bc" "\u25ba")]
+
        [:input {:id id 
                 :checked checked
                 :type "checkbox" 
                 :on-change (fn [e] 
                              (swap! state-atom update-checked id (.. e -target -checked))
                              (check-item id (.. e -target -checked)))}]
+
        [:span text] 
-       (when (and (task-tree? task) (:expand task))
+
+       (when (and focus expand) [:span {:style {:margin-left "5px"
+                                   :font-weight "bold"}
+                           :on-click (fn [e] (swap! state-atom add-entry id))} "+"])
+       (when (and (task-tree? task) expand)
          (for [subtask (:subtree task)]
            [render-task-tree (assoc subtask :checked (:checked task)) state-atom]))]))
 
@@ -73,6 +97,7 @@
                      :text     (:text entry)
                      :expand   (:expand entry)
                      :checked  (:checked entry)
+                     :focus    (:focus entry)
                      :subtree  (generate-tree grouped-flat-tree builder (:id entry))})  entries)))))
 
 
