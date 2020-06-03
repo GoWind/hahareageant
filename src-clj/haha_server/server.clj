@@ -11,15 +11,17 @@
 
 (defn rpan
   []
-  [{:id "step 1" :text "do something everyday"}
-   {:id "step 2" :text "do not accept defeat"}
-   {:id "step 3" :text "Make small incremental changes"}
-   {:id "step 4" :text "tactics" :subtree [{:id "4a" :text "get into something fulltime"}
-                                           {:id "4b" :text "block all other distractions"}
-                                           {:id "4c" :text "Get rid of facebook"}
-                                           {:id "4d" :text "Ignore naysayers"}
-                                           {:id "4k" :text "Build. Shipx"}]}
-   {:id "step 5" :text "screwit"}])
+  {
+   "step 1" {:id "step 1" :text "do something everyday"}
+   "step 2" {:id "step 2" :text "do not accept defeat"}
+   "step 3"{:id "step 3" :text "Make small incremental changes"}
+   "step 4"{:id "step 4" :text "tactics" }
+   "4a" {:id "4a" :parent "step 4" :text "get into something fulltime"}
+   "4b" {:id "4b" :parent "step 4" :text "block all other distractions"}
+   "4c" {:id "4c" :parent "step 4" :text "Get rid of facebook"}
+   "4d" {:id "4d" :parent "step 4" :text "Ignore naysayers"}
+   "4k" {:id "4k" :parent "step 4" :text "Build. Shipx"}
+   "step 5"{:id "step 5" :text "screwit"}})
 
 (defn handler* [request]
   {:status 200
@@ -28,3 +30,7 @@
 
 
 (def handler (wrap-reload #'handler*))
+
+
+
+
