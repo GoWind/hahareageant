@@ -19,5 +19,9 @@
 }
 
 .tasktree {
-   margin-left: 5%;
+   margin-left: 5px;
+}
+
+.strikethrough {
+  text-decoration: line-through;
 }

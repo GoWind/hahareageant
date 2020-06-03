@@ -25,6 +25,11 @@
                            [k (assoc v :checked checked)]
                            [k v]))
                        r)))))
+
+(defn classes
+  [& args]
+  (clojure.string/join " " args))
+
 (defn add-entry
   [state parent]
   ;;TODO: change rand-int into something different
@@ -51,15 +56,22 @@
       [:input {:id id :type "checkbox"}]
       text]))
 
+;; TODOs
+;; 1. When you add a subtask to a non-expanded task node, the parent node
+;;    should be expanded, as a visual indicator, a sub node has been added.
+;; 2. When focusing on a subnode, the "+" to add a new subnode is also shown next to the parent task
+;;    because you mouse over a subnode, you are also "mouse over"-ing into the parent node (since subnodes are wrappedin the paren'ts <li>'). This has to be removed
 (defn render-task-tree
   [task state-atom]
   (let [{:keys [id subtree text expand checked focus]} task
         tree? (not (empty? subtree))]
-    (println "focus is " (keys task))
       ^{:key id} 
       [:li {:class "tasktree"
-            :on-mouse-over  #(swap! state-atom assoc-in  [:results id :focus] true)
-            :on-mouse-leave #(swap! state-atom assoc-in  [:results id :focus] false)}
+            ;;stopPropagation ensure that the ancestor <li>'s mouse-over doesn't get activated as well
+            :on-mouse-over  #(do (. % stopPropagation)
+                                 (swap! state-atom assoc-in  [:results id :focus] true))
+            :on-mouse-out #(do   (. % stopPropagation)
+                                 (swap! state-atom assoc-in  [:results id :focus] false))}
 
        [:span {:on-click #(swap! state-atom update-task-key id :expand not)
                :class    (if tree? "expandablepointer" "")
@@ -73,17 +85,15 @@
                              (swap! state-atom update-checked id (.. e -target -checked))
                              (check-item id (.. e -target -checked)))}]
 
-       [:span text] 
+       [:span {:class (if checked "strikethrough")} text] 
 
-       (when (and focus expand) [:span {:style {:margin-left "5px"
-                                   :font-weight "bold"}
+       (when focus [:span {:style {:margin-left "5px"
+                                                :font-weight "bold"}
                            :on-click (fn [e] (swap! state-atom add-entry id))} "+"])
        (when (and (task-tree? task) expand)
-         (for [subtask (:subtree task)]
-           [render-task-tree (assoc subtask :checked (:checked task)) state-atom]))]))
-
-
-
+         [:ul {:class "globaltasklist"}
+          (for [subtask (:subtree task)]
+            [render-task-tree (assoc subtask :checked (:checked task)) state-atom])])]))
 
 
 (defn generate-tree
