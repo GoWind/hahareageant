@@ -32,8 +32,7 @@
 (defn show-results
   [state-atom]
   (when (not (empty? (:results @state-atom)))
-    (el/render-task-list state-atom)
-    #_(tree-view (:results @state-atom))))
+    [el/render-task-list state-atom]))
 
 (defn search-form
   []
