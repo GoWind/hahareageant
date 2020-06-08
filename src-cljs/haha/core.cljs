@@ -14,7 +14,7 @@
 (println "reload")
 
 ;;We need a `defonce` because the namespace is re-initialized on every reload
-(defonce app-state (r/atom 0))
+(defonce app-state (r/atom {}))
 
 (defn form-search
   [{:keys [pin location need] :as state} state-atom]
@@ -36,14 +36,14 @@
 
 (defn search-form
   []
-  (let [s        (r/atom {})
-        set-in-s (fn [event k] (swap! s assoc k (-> event .-target .-value)))]
+  (let [
+        set-in-s (fn [event k] (swap! app-state assoc k (-> event .-target .-value)))]
     (fn render []
       [:div
        [:form {:on-submit (fn [e]
                             (println "button clicked")
                             (.preventDefault e)
-                            (form-search @s s))}
+                            (form-search @app-state app-state))}
 
         [:div
          [:p "pin"]]
@@ -66,18 +66,22 @@
          [:button.submitbutton "Submit"]]]
        [:button.clearbutton {:on-click (fn [e]
                                          (.preventDefault e)
-                                         (swap! s dissoc :results))}
+                                         (swap! app-state dissoc :results))}
         "clear"]
        [:div
-        [show-results s]]])))
+        [show-results app-state]]])))
 
+;;TODO add a 
+;;(set! (.-onclick js/document) (fn [e]))
+;;to set an event handler to stop editing our todo items
+;;in case we click outside of our div
 (defn run []
   (rdom/render
    [search-form]
-   #_[compound-component]
    (js/document.getElementById "app")))
 ;; When the browser loads the JS, it evaluates all the forms in the namespace,
 ;; To "launch" our application, call run
+
 (run)
 
 (defn on-js-reload []

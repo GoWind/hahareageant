@@ -36,6 +36,12 @@
   (let [new-id (str "step " parent "-" (rand-int 5000))]
     (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})))
 
+(defn edit-entry
+  "set :edit for id to true. This implies user
+   is currently editing entry at id"
+  [state id]
+  (assoc state :edit id))
+
 (defn set-task-key
   [state task-id k value]
   (assoc-in state [:results task-id k] value))
@@ -64,14 +70,15 @@
 (defn render-task-tree
   [task state-atom]
   (let [{:keys [id subtree text expand checked focus]} task
+        edit  (:edit @state-atom)
         tree? (not (empty? subtree))]
       ^{:key id} 
       [:li {:class "tasktree"
             ;;stopPropagation ensure that the ancestor <li>'s mouse-over doesn't get activated as well
             :on-mouse-over  #(do (. % stopPropagation)
-                                 (swap! state-atom assoc-in  [:results id :focus] true))
+                                 (swap! state-atom set-task-key id :focus true))
             :on-mouse-out #(do   (. % stopPropagation)
-                                 (swap! state-atom assoc-in  [:results id :focus] false))}
+                                 (swap! state-atom set-task-key id :focus false))}
 
        [:span {:on-click #(swap! state-atom update-task-key id :expand not)
                :class    (if tree? "expandablepointer" "")
@@ -85,11 +92,18 @@
                              (swap! state-atom update-checked id (.. e -target -checked))
                              (check-item id (.. e -target -checked)))}]
 
-       [:span {:class (if checked "strikethrough")} text] 
+       (if (= edit id)
+         [:input {:value text
+                  :on-change (fn [e] (swap! state-atom set-task-key id :text (.. e -target -value)))}]
+         [:span {:class (if checked "strikethrough")} text])
+        
 
        (when focus [:span {:style {:margin-left "5px"
                                                 :font-weight "bold"}
                            :on-click (fn [e] (swap! state-atom add-entry id))} "+"])
+       (when focus [:span {:style {:margin-left "5px"
+                                   :font-weight "bold"}
+                           :on-click (fn [e] (swap! state-atom edit-entry id))} "Edit"])
        (when (and (task-tree? task) expand)
          [:ul {:class "globaltasklist"}
           (for [subtask (:subtree task)]
