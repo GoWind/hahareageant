@@ -50,5 +50,5 @@ get live reloading, nor a REPL.
 
 ## License
 
-Copyright © 2020 Govindarajan (petrovgovind@gmail.com)
+Copyright © 2020 Govindarajan (govindnagarajan@outlook.com)
 
