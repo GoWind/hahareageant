@@ -71,17 +71,47 @@
        [:div
         [show-results app-state]]])))
 
+(defn loading-form
+  [state-atom]
+  (when (not (:results @state-atom))
+    [:h1 "Loading"])
+  [:div
+   [show-results app-state]])
+
+(defn new-list-banner
+  []
+  (let [;;r/current-component is empty inside the
+        ;;click handler, so get the reference to this in the let
+        component (r/current-component)
+        handler (fn [e]
+                  (let [dom-node  (rdom/dom-node component)
+                        _         (form-search @app-state app-state)]
+                    (rdom/render
+                      [loading-form app-state]
+                      (js/document.getElementById "app"))))]
+    [:h1 {:on-click handler} "Click to create a new list"]))
+
 ;;TODO add a 
 ;;(set! (.-onclick js/document) (fn [e]))
 ;;to set an event handler to stop editing our todo items
 ;;in case we click outside of our div
+
+(defn element-contains?
+  "is a parent of b"
+  [element test-element]
+  (println  (. element contains test-element)))
+
 (defn run []
-  (rdom/render
-   [search-form]
-   (js/document.getElementById "app")))
+  ;;Handle clicks outside the container of our react app, by using a
+  ;;default handler to set values in the state if the click originates
+  ;;outside the container
+  (set! (.-onclick  js/document) (fn [e] 
+                                   (element-contains? (. js/document getElementById "app") (.-target e))))
+
+  (rdom/render [new-list-banner] (js/document.getElementById "app")))
+
 ;; When the browser loads the JS, it evaluates all the forms in the namespace,
 ;; To "launch" our application, call run
-
 (run)
 
 (defn on-js-reload []
