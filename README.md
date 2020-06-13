@@ -19,6 +19,7 @@ TODO:
 1. Provide the ability to remove tasks
 2. Re-order tasks
 3. Show more than 1 tasklist in the browser
+4. Create a production build that doesn't need a CLJS environment
 
 
 ## Setup
