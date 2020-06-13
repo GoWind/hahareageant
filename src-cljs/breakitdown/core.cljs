@@ -99,14 +99,17 @@
 (defn element-contains?
   "is a parent of b"
   [element test-element]
-  (println  (. element contains test-element)))
+  (. element contains test-element))
 
 (defn run []
   ;;Handle clicks outside the container of our react app, by using a
   ;;default handler to set values in the state if the click originates
   ;;outside the container
   (set! (.-onclick  js/document) (fn [e] 
-                                   (element-contains? (. js/document getElementById "app") (.-target e))))
+                                   (if (not (element-contains? (. js/document getElementById "app") (.-target e)))
+                                     ;;TODO: this really leaks abstraction,
+                                     ;;figure out a better way to handle this
+                                     (swap! app-state dissoc :edit))))
 
   (rdom/render [new-list-banner] (js/document.getElementById "app")))
 
