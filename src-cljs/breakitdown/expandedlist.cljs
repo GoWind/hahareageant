@@ -6,7 +6,7 @@
    [reagent.core :as r]
    [reagent.dom  :as rdom]))
 
-(defn check-item
+(defn check-todo-item
   [id value]
   (let [error-handler (fn [e] (println e)) 
         resp          (POST "http://localhost:3449/check"
@@ -90,7 +90,7 @@
                 :type "checkbox" 
                 :on-change (fn [e] 
                              (swap! state-atom update-checked id (.. e -target -checked))
-                             (check-item id (.. e -target -checked)))}]
+                             (check-todo-item id (.. e -target -checked)))}]
 
        (if (= edit id)
          [:input {:value text
