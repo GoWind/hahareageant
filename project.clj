@@ -1,4 +1,4 @@
-(defproject haha "0.1.0-SNAPSHOT"
+(defproject breakitdown "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -32,17 +32,17 @@
                 ;; The presence of a :figwheel configuration here
                 ;; will cause figwheel to inject the figwheel client
                 ;; into your build
-                :figwheel {:on-jsload "haha.core/on-js-reload"
+                :figwheel {:on-jsload "breakitdown.core/on-js-reload"
                            ;; :open-urls will pop open your application
                            ;; in the default browser once Figwheel has
                            ;; started and compiled your application.
                            ;; Comment this out once it no longer serves you.
                            :open-urls ["http://localhost:3449/index.html"]}
 
-                :compiler {:main haha.core
+                :compiler {:main breakitdown.core
                            ;;:target :bundle
                            :asset-path "js"
-                           :output-to "resources/public/js/haha-dev.js"
+                           :output-to "resources/public/js/breakitdown-dev.js"
                            :output-dir "resources/public/js"
                            ;;:bundle-cmd {:none ["npx" "webpack" "--mode=development"]
                            ;;             :default ["npx" "webpack"]}
@@ -55,8 +55,8 @@
                ;; lein cljsbuild once min
                {:id "min"
                 :source-paths ["src"]
-                :compiler {:output-to "resources/public/js/haha.js"
-                           :main haha.core
+                :compiler {:output-to "resources/public/js/breakitdown.js"
+                           :main breakitdown.core
                            :optimizations :advanced
                            :pretty-print false}}]}
 
@@ -75,7 +75,7 @@
 
              ;; doesn't work for you just run your own server :) (see lein-ring)
 
-             :ring-handler haha-server.server/handler
+             :ring-handler breakitdown-server.server/handler
 
              ;; To be able to open files in your editor from the heads up display
              ;; you will need to put a script on your path.

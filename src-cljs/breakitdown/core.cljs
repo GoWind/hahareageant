@@ -1,4 +1,4 @@
-(ns haha.core
+(ns breakitdown.core
   (:require-macros
    [cljs.core.async.macros :refer [go]])
   (:require
@@ -7,7 +7,7 @@
    [cljs.core.async :refer [<! take!]]
    [reagent.core :as r]
    [reagent.dom  :as rdom]
-   [haha.expandedlist :as el]))
+   [breakitdown.expandedlist :as el]))
 
 (enable-console-print!)
 

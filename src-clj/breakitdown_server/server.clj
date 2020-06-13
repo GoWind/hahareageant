@@ -1,4 +1,4 @@
-(ns haha-server.server
+(ns breakitdown-server.server
   (:require
    [cheshire.core :as json]
    [ring.middleware.reload :refer [wrap-reload]]))

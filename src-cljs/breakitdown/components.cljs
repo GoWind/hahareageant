@@ -1,4 +1,4 @@
-(ns haha.components)
+(ns breakitdown.components)
 
 (defn compound-component
   []
