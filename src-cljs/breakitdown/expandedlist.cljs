@@ -62,11 +62,6 @@
       [:input {:id id :type "checkbox"}]
       text]))
 
-;; TODOs
-;; 1. When you add a subtask to a non-expanded task node, the parent node
-;;    should be expanded, as a visual indicator, a sub node has been added.
-;; 2. When focusing on a subnode, the "+" to add a new subnode is also shown next to the parent task
-;;    because you mouse over a subnode, you are also "mouse over"-ing into the parent node (since subnodes are wrappedin the paren'ts <li>'). This has to be removed
 (defn render-task-tree
   [task state-atom]
   (let [{:keys [id subtree text expand checked focus]} task
