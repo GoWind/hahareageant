@@ -125,8 +125,17 @@
   (fn []
     (let [grouped-tasks (group-by :parent
                                   (map  clojure.walk/keywordize-keys (vals (:results @state-atom))))
-          tasks (generate-tree grouped-tasks [] nil)]
-      [:ul {:class "globaltasklist"}
-       (for [task tasks]
-         (render-task-tree task state-atom))]
+          tasks (generate-tree grouped-tasks [] nil)
+          edit  (:edit @state-atom)
+          title (:title @state-atom)]
+      [:div
+       (if (= edit "title")
+         [:input {:value title
+                  :on-change (fn [e] 
+                               (let [edited-title (.. e -target -value)]
+                                 (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
+         [:h2 {:on-click #(swap! state-atom edit-entry "title")} (or title "New List")])
+       [:ul {:class "globaltasklist"}
+        (for [task tasks]
+          (render-task-tree task state-atom))]]
       )))
