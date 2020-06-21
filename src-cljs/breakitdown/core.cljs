@@ -7,7 +7,8 @@
    [cljs.core.async :refer [<! take!]]
    [reagent.core :as r]
    [reagent.dom  :as rdom]
-   [breakitdown.expandedlist :as el]))
+   [breakitdown.expandedlist :as el]
+   [breakitdown.state :as state]))
 
 (enable-console-print!)
 
@@ -40,7 +41,7 @@
   (when (not (:results @state-atom))
     [:h1 "Loading"])
   [:div
-   [show-results app-state]])
+   [show-results state/app-state]])
 
 (defn new-list-banner
   []
@@ -49,9 +50,9 @@
         component (r/current-component)
         handler (fn [e]
                   (let [dom-node  (rdom/dom-node component)
-                        _         (form-search @app-state app-state)]
+                        _         (form-search @state/app-state state/app-state)]
                     (rdom/render
-                      [loading-form app-state]
+                      [loading-form state/app-state]
                       (js/document.getElementById "app"))))]
     [:h1 {:on-click handler} "Click to create a new list"]))
 
@@ -73,7 +74,7 @@
                                    (if (not (element-contains? (. js/document getElementById "app") (.-target e)))
                                      ;;TODO: this really leaks abstraction,
                                      ;;figure out a better way to handle this
-                                     (swap! app-state dissoc :edit))))
+                                     (swap! state/app-state dissoc :edit))))
 
   (rdom/render [new-list-banner] (js/document.getElementById "app")))
 
@@ -86,5 +87,5 @@
   ;; your application
   #_(do
       (println "when does this happen")
-      (swap! app-state inc)))
+      (swap! state/app-state inc)))
 
