@@ -84,8 +84,6 @@
        ;; When item is focused on show a "+" button and an "Edit" button
        ;; to the right to add sub-items or edit current item
        
-       ;;TODO, when user clicks plus, expand current item and shift focus to the newly added
-       ;;sub-item
        (when focus [:span {:style {:margin-left "5px"
                                                 :font-weight "bold"}
                            :on-click (fn [e] (swap! state-atom state/add-entry id))} "+"])

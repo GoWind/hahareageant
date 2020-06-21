@@ -33,7 +33,9 @@
   (let [results (:results state)
         new-id (str "step " parent "-" (rand-int 5000))]
     (if (not (contains? results new-id))
-      (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})
+      (-> (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})
+          ;;set expand to true on the parent
+          (set-task-key parent :expand true))
       (recur state parent))))
 
 
