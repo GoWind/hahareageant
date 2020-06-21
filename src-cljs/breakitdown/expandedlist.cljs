@@ -4,7 +4,9 @@
    [cljs-http.client :as http]
    [cljs.core.async :refer [<! take!]]
    [reagent.core :as r]
-   [reagent.dom  :as rdom]))
+   [reagent.dom  :as rdom]
+   
+   [breakitdown.state :as state]))
 
 (defn check-todo-item
   [id value]
@@ -29,18 +31,6 @@
 (defn classes
   [& args]
   (clojure.string/join " " args))
-
-(defn add-entry
-  [state parent]
-  ;;TODO: change rand-int into something different
-  (let [new-id (str "step " parent "-" (rand-int 5000))]
-    (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})))
-
-(defn edit-entry
-  "set :edit for id to true. This implies user
-   is currently editing entry at id"
-  [state id]
-  (assoc state :edit id))
 
 (defn set-task-key
   [state task-id k value]
@@ -91,13 +81,17 @@
                   :on-change (fn [e] (swap! state-atom set-task-key id :text (.. e -target -value)))}]
          [:span {:class (if checked "strikethrough")} text])
         
-
+       ;; When item is focused on show a "+" button and an "Edit" button
+       ;; to the right to add sub-items or edit current item
+       
+       ;;TODO, when user clicks plus, expand current item and shift focus to the newly added
+       ;;sub-item
        (when focus [:span {:style {:margin-left "5px"
                                                 :font-weight "bold"}
-                           :on-click (fn [e] (swap! state-atom add-entry id))} "+"])
+                           :on-click (fn [e] (swap! state-atom state/add-entry id))} "+"])
        (when focus [:span {:style {:margin-left "5px"
                                    :font-weight "bold"}
-                           :on-click (fn [e] (swap! state-atom edit-entry id))} "Edit"])
+                           :on-click (fn [e] (swap! state-atom state/edit-entry id))} "Edit"])
        (when (and (task-tree? task) expand)
          [:ul {:class "globaltasklist"}
           (for [subtask (:subtree task)]
@@ -133,7 +127,7 @@
                   :on-change (fn [e] 
                                (let [edited-title (.. e -target -value)]
                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
-         [:h2 {:on-click #(swap! state-atom edit-entry "title")} (or title "New List")])
+         [:h2 {:on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
        [:ul {:class "globaltasklist"}
         (for [task tasks]
           (render-task-tree task state-atom))]]
