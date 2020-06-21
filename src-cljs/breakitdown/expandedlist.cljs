@@ -66,7 +66,7 @@
                                  (swap! state-atom set-task-key id :focus false))}
 
        [:span {:on-click #(swap! state-atom update-task-key id :expand not)
-               :class    (if tree? "expandablepointer" "")}  
+               :class    (if tree? "pointer" "")}
         (if (:expand task) "\u25bc" "\u25ba")]
 
        [:input {:id id 
@@ -131,6 +131,6 @@
        [:ul {:class "globaltasklist"}
         (for [task tasks]
           (render-task-tree task state-atom))
-        [:li {:class "tasktree"
+        [:li {:class (classes  "tasktree" "pointer")
               :on-click #(swap! state-atom state/add-entry nil)} "+"]]]
       )))
