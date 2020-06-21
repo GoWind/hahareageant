@@ -27,9 +27,14 @@
 
 (defn add-entry
   [state parent]
-  ;;TODO: change rand-int into something different
-  (let [new-id (str "step " parent "-" (rand-int 5000))]
-    (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})))
+  ;;Guess a new id for a sub-item, by creating a random-int
+  ;;and appending it to the id of the parent
+  ;;silly, but works
+  (let [results (:results state)
+        new-id (str "step " parent "-" (rand-int 5000))]
+    (if (not (contains? results new-id))
+      (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})
+      (recur state parent))))
 
 
 
