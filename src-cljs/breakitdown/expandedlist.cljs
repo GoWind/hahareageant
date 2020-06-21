@@ -130,5 +130,7 @@
          [:h2 {:on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
        [:ul {:class "globaltasklist"}
         (for [task tasks]
-          (render-task-tree task state-atom))]]
+          (render-task-tree task state-atom))
+        [:li {:class "tasktree"
+              :on-click #(swap! state-atom state/add-entry nil)} "+"]]]
       )))
