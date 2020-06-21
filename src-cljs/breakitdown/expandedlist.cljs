@@ -17,6 +17,8 @@
                              :error-handler   error-handler})]))
 
 (defn update-checked
+  "When a user checks item `id`, check the item
+   and all of the child items of `id`"
   [state id checked]
   ;;silly, but works
   (update state :results 
@@ -130,5 +132,4 @@
         (for [task tasks]
           (render-task-tree task state-atom))
         [:li {:class (classes  "tasktree" "pointer")
-              :on-click #(swap! state-atom state/add-entry nil)} "+"]]]
-      )))
+              :on-click #(swap! state-atom state/add-entry nil)} "+"]]])))
