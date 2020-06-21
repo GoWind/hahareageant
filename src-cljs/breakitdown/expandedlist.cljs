@@ -76,8 +76,7 @@
                                  (swap! state-atom set-task-key id :focus false))}
 
        [:span {:on-click #(swap! state-atom update-task-key id :expand not)
-               :class    (if tree? "expandablepointer" "")
-               :on-hover (fn [e] (println e))}  
+               :class    (if tree? "expandablepointer" "")}  
         (if (:expand task) "\u25bc" "\u25ba")]
 
        [:input {:id id 
