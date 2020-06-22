@@ -39,4 +39,17 @@
       (recur state parent))))
 
 
-
+(defn local-storage?
+  []
+  (try
+    (let [local-storage (. js/window -localStorage)]
+      (.setItem  local-storage "a" "b")
+      (.removeItem  local-storage "a")
+      true)
+    (catch js/Exception e
+      (and (instance? js/DOMException e)
+           (or (= (. e -code) 22)
+               (= (. e -code) 1014)
+               (= (. e -name) "QuotaExceededError")
+               (= (. e -name) "NS_ERROR_DOM_QUOTA_REACHED"))
+           (and local-storage (not= (. local-storage -length) 0))))))
