@@ -27,7 +27,9 @@
                                 "for" need}
                        :handler (fn
                                   [v]
-                                  (swap! state-atom assoc :results v))})]))
+                                  (swap! state-atom assoc :results v))
+                       :error-handler (fn [e]
+                                        (swap! state-atom assoc :results (state/load-from-session-storage)))})]))
 
 
 (defn show-results

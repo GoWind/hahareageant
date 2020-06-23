@@ -1,5 +1,6 @@
 (ns breakitdown.state
   (:require
+    [clojure.edn :as edn]
     [clojure.spec.alpha :as spec]
     [reagent.core :as r]))
 
@@ -33,23 +34,34 @@
   (let [results (:results state)
         new-id (str "step " parent "-" (rand-int 5000))]
     (if (not (contains? results new-id))
-      (-> (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})
-          ;;set expand to true on the parent
-          (set-task-key parent :expand true))
+      (as-> (assoc-in state [:results new-id] {:id new-id :text "Type something new" :parent parent})
+            updated-state
+            ;;If parent id is nil, do not set :expand to true
+            ;;as it causes a stack overflow error
+            ;;TODO: refactor this nicely :)
+            (if (some? parent)
+              (set-task-key updated-state parent :expand true)
+              updated-state))
       (recur state parent))))
 
 
 (defn local-storage?
   []
-  (try
-    (let [local-storage (. js/window -localStorage)]
+  (let [local-storage (. js/window -localStorage)]
+    (try
       (.setItem  local-storage "a" "b")
       (.removeItem  local-storage "a")
-      true)
-    (catch js/Exception e
+      true
+     (catch js/Exception e
       (and (instance? js/DOMException e)
            (or (= (. e -code) 22)
                (= (. e -code) 1014)
                (= (. e -name) "QuotaExceededError")
                (= (. e -name) "NS_ERROR_DOM_QUOTA_REACHED"))
-           (and local-storage (not= (. local-storage -length) 0))))))
+           (and local-storage (not= (. local-storage -length) 0)))))))
+
+(defn load-from-session-storage
+  []
+  (if (local-storage?)
+    (let [ls (. js/window -localStorage)]
+      (edn/read-string  (.getItem ls "stored-lists")))))
