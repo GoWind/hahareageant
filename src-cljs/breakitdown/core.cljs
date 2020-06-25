@@ -34,7 +34,7 @@
 
 (defn show-results
   [state-atom]
-  (when (not (empty? (:results @state-atom)))
+  (when (some? (:results @state-atom))
     [el/render-task-list state-atom]))
 
 

@@ -64,4 +64,6 @@
   []
   (if (local-storage?)
     (let [ls (. js/window -localStorage)]
-      (edn/read-string  (.getItem ls "stored-lists")))))
+      (or
+        (edn/read-string  (.getItem ls "stored-lists"))
+        {}))))
