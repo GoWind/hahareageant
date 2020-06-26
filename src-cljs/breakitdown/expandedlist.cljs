@@ -114,6 +114,8 @@
 
 
 (defn render-task-list
+  "This is the main fn that is called when the list is
+   to be rendered"
   [state-atom]
   (fn []
     (let [grouped-tasks (group-by :parent
@@ -128,6 +130,7 @@
                                (let [edited-title (.. e -target -value)]
                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
          [:h2 {:on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
+       [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
        [:ul {:class "globaltasklist"}
         (for [task tasks]
           (render-task-tree task state-atom))

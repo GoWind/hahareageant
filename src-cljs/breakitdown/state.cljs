@@ -4,7 +4,10 @@
     [clojure.spec.alpha :as spec]
     [reagent.core :as r]))
 
-(defonce app-state (r/atom {:results {}}))
+(defn empty-state []
+  {:results {}})
+
+(defonce app-state (r/atom (empty-state)))
 
 
 ;;Task list is ultimately a map of things -> things
@@ -67,3 +70,9 @@
       (or
         (edn/read-string  (.getItem ls "stored-lists"))
         {}))))
+
+(defn dump-to-storage
+  [state]
+  (let [ls (. js/window -localStorage)]
+    (.setItem ls "stored-lists" (:results state))
+    state))

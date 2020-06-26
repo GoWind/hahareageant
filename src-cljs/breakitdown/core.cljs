@@ -8,14 +8,9 @@
    [reagent.core :as r]
    [reagent.dom  :as rdom]
    [breakitdown.expandedlist :as el]
-   [breakitdown.state :as state]))
+   [breakitdown.state :as bs]))
 
 (enable-console-print!)
-
-(println "reload")
-
-;;We need a `defonce` because the namespace is re-initialized on every reload
-(defonce app-state (r/atom {}))
 
 (defn form-search
   [{:keys [pin location need] :as state} state-atom]
@@ -29,7 +24,7 @@
                                   [v]
                                   (swap! state-atom assoc :results v))
                        :error-handler (fn [e]
-                                        (swap! state-atom assoc :results (state/load-from-session-storage)))})]))
+                                        (swap! state-atom assoc :results (bs/load-from-session-storage)))})]))
 
 
 (defn show-results
@@ -43,18 +38,20 @@
   (when (not (:results @state-atom))
     [:h1 "Loading"])
   [:div
-   [show-results state/app-state]])
+   [show-results bs/app-state]])
 
 (defn new-list-banner
+  "Show a banner, which when clicked on, 
+   shows a new list"
   []
   (let [;;r/current-component is empty inside the
         ;;click handler, so get the reference to this in the let
         component (r/current-component)
         handler (fn [e]
                   (let [dom-node  (rdom/dom-node component)
-                        _         (form-search @state/app-state state/app-state)]
+                        _         (form-search @bs/app-state bs/app-state)]
                     (rdom/render
-                      [loading-form state/app-state]
+                      [loading-form bs/app-state]
                       (js/document.getElementById "app"))))]
     [:h1 {:on-click handler} "Click to create a new list"]))
 
@@ -76,7 +73,7 @@
                                    (if (not (element-contains? (. js/document getElementById "app") (.-target e)))
                                      ;;TODO: this really leaks abstraction,
                                      ;;figure out a better way to handle this
-                                     (swap! state/app-state dissoc :edit))))
+                                     (swap! bs/app-state dissoc :edit))))
 
   (rdom/render [new-list-banner] (js/document.getElementById "app")))
 
@@ -89,5 +86,5 @@
   ;; your application
   #_(do
       (println "when does this happen")
-      (swap! state/app-state inc)))
+      (swap! bs/app-state inc)))
 
