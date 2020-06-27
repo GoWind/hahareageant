@@ -74,8 +74,8 @@
                                      ;;TODO: this really leaks abstraction,
                                      ;;figure out a better way to handle this
                                      (swap! bs/app-state dissoc :edit))))
-
-  (rdom/render [new-list-banner] (js/document.getElementById "app")))
+  (form-search @bs/app-state bs/app-state)
+  (rdom/render [loading-form bs/app-state] (js/document.getElementById "app")))
 
 ;; When the browser loads the JS, it evaluates all the forms in the namespace,
 ;; To "launch" our application, call run
