@@ -78,11 +78,22 @@
     (.setItem ls "stored-lists" (:results state))
     state))
 
+(defn normalize-server-resp
+  "Given a map of {\"checklist item id\" -> checklist item},
+   where checklist item is a map, keywordize all the keys,
+   in checklist item"
+  [m]
+  (into {} 
+        (map 
+          (fn [[k v]] 
+            [k (clojure.walk/keywordize-keys v)])
+          m)))
+
 (defn fetch-checklist
   [state-atom]
   (GET "http://localhost:3449/search"
        {:handler (fn
                    [v]
-                   (swap! state-atom assoc :results v))
+                   (swap! state-atom assoc :results (normalize-server-resp v)))
         :error-handler (fn [e]
                          (swap! state-atom assoc :results (load-from-session-storage)))}))
