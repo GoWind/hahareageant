@@ -12,10 +12,10 @@
 (defn rpan
   []
   {
-   "step 1" {:id "step 1" :text "do something everyday"}
-   "step 2" {:id "step 2" :text "do not accept defeat"}
-   "step 3"{:id "step 3" :text "Make small incremental changes"}
-   "step 4"{:id "step 4" :text "tactics" }
+   "step 1" {:id "step 1" :text "do something everyday" :parent ""}
+   "step 2" {:id "step 2" :text "do not accept defeat" :parent ""}
+   "step 3"{:id "step 3" :text "Make small incremental changes" :parent ""}
+   "step 4"{:id "step 4" :text "tactics" :parent ""}
    "4a" {:id "4a" :parent "step 4" :text "get into something fulltime"}
    "4b" {:id "4b" :parent "step 4" :text "block all other distractions"}
    "4c" {:id "4c" :parent "step 4" :text "Get rid of facebook"}
