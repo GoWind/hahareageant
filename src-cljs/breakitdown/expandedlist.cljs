@@ -132,4 +132,4 @@
         (for [task tasks]
           (render-task-tree task state-atom))
         [:li {:class (classes  "tasktree" "pointer")
-              :on-click #(swap! state-atom state/add-entry nil)} "+"]]])))
+              :on-click #(swap! state-atom state/add-entry "")} "+"]]])))
