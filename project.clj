@@ -1,6 +1,6 @@
-(defproject breakitdown "0.1.0-SNAPSHOT"
+(defproject breakitdown "0.1.0"
   :description "A TODO app with a twist"
-  :url "http://github.com/GoWind/haha"
+  :url "http://github.com/GoWind/hahareageant"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
