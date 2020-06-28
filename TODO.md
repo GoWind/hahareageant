@@ -2,3 +2,4 @@
 2. Add better styling to the task list (what is better?)
 3. Let users work on multiple tasklists
 4. Remove backend and use browser's built-in APIs to store TODO lists
+5. Save title of list along with list when storing to local storage
