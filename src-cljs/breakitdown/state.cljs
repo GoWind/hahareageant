@@ -2,6 +2,7 @@
   (:require
     [clojure.edn :as edn]
     [clojure.spec.alpha :as spec]
+    [ajax.core :refer [GET POST]]
     [reagent.core :as r]))
 
 (defn empty-state []
@@ -76,3 +77,12 @@
   (let [ls (. js/window -localStorage)]
     (.setItem ls "stored-lists" (:results state))
     state))
+
+(defn fetch-checklist
+  [state-atom]
+  (GET "http://localhost:3449/search"
+       {:handler (fn
+                   [v]
+                   (swap! state-atom assoc :results v))
+        :error-handler (fn [e]
+                         (swap! state-atom assoc :results (load-from-session-storage)))}))

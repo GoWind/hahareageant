@@ -2,7 +2,7 @@
   (:require-macros
    [cljs.core.async.macros :refer [go]])
   (:require
-   [ajax.core :refer [GET POST]]
+   [clojure.walk :as w]
    [cljs-http.client :as http]
    [cljs.core.async :refer [<! take!]]
    [reagent.core :as r]
@@ -11,20 +11,7 @@
    [breakitdown.state :as bs]))
 
 (enable-console-print!)
-
-(defn form-search
-  [{:keys [pin location need] :as state} state-atom]
-  (let [search-by (if (identity pin) pin location)
-       ;;blocking operation
-        search-resp (atom nil)
-        params      (GET "http://localhost:3449/search"
-                      {:params {"by"  search-by
-                                "for" need}
-                       :handler (fn
-                                  [v]
-                                  (swap! state-atom assoc :results v))
-                       :error-handler (fn [e]
-                                        (swap! state-atom assoc :results (bs/load-from-session-storage)))})]))
+(set! js/console.warn (fn []))
 
 
 (defn show-results
@@ -49,7 +36,7 @@
         component (r/current-component)
         handler (fn [e]
                   (let [dom-node  (rdom/dom-node component)
-                        _         (form-search @bs/app-state bs/app-state)]
+                        _         (bs/fetch-checklist bs/app-state)]
                     (rdom/render
                       [loading-form bs/app-state]
                       (js/document.getElementById "app"))))]
@@ -74,7 +61,7 @@
                                      ;;TODO: this really leaks abstraction,
                                      ;;figure out a better way to handle this
                                      (swap! bs/app-state dissoc :edit))))
-  (form-search @bs/app-state bs/app-state)
+  (bs/fetch-checklist bs/app-state)
   (rdom/render [loading-form bs/app-state] (js/document.getElementById "app")))
 
 ;; When the browser loads the JS, it evaluates all the forms in the namespace,

@@ -24,6 +24,7 @@
   (update state :results 
           (fn [r] 
             (into {}
+                  ;;k is a todo item, v is the text and related info
                   (map (fn [[k v]]
                          (if (or (= k id) (= (:parent v) id))
                            [k (assoc v :checked checked)]
@@ -46,13 +47,6 @@
   [task]
   (not (empty? (:subtree task))))
 
-(defn render-leaf-task
-  [task]
-  (let [{:keys [id text]} task]
-    ^{:key id} 
-    [:li {:class "leaf-task"}
-      [:input {:id id :type "checkbox"}]
-      text]))
 
 (defn render-task-tree
   [task state-atom]
@@ -75,6 +69,7 @@
                 :checked checked
                 :type "checkbox" 
                 :on-change (fn [e] 
+                             (println "input checkbox")
                              (swap! state-atom update-checked id (.. e -target -checked))
                              (check-todo-item id (.. e -target -checked)))}]
 
@@ -95,22 +90,24 @@
        (when (and (task-tree? task) expand)
          [:ul {:class "globaltasklist"}
           (for [subtask (:subtree task)]
-            [render-task-tree (assoc subtask :checked (:checked task)) state-atom])])]))
+            [render-task-tree subtask state-atom])])]))
 
 
 (defn generate-tree
+  "build the subtree of a parent into builder"
   [grouped-flat-tree builder parent]
-  (let [entries (grouped-flat-tree parent)]
-    (if (empty? entries)
-      builder
-      (into builder 
-            (mapv (fn [entry]
-                    {:id       (:id entry)
-                     :text     (:text entry)
-                     :expand   (:expand entry)
-                     :checked  (:checked entry)
-                     :focus    (:focus entry)
-                     :subtree  (generate-tree grouped-flat-tree builder (:id entry))})  entries)))))
+  (when (some? parent)
+    (let [entries (grouped-flat-tree parent)]
+      (if (empty? entries)
+        builder
+        (into builder 
+              (mapv (fn [entry]
+                      {:id       (:id entry)
+                       :text     (:text entry)
+                       :expand   (:expand entry)
+                       :checked  (:checked entry)
+                       :focus    (:focus entry)
+                       :subtree  (generate-tree grouped-flat-tree builder (:id entry))})  entries))))))
 
 
 (defn render-task-list
@@ -120,7 +117,7 @@
   (fn []
     (let [grouped-tasks (group-by :parent
                                   (map  clojure.walk/keywordize-keys (vals (:results @state-atom))))
-          tasks (generate-tree grouped-tasks [] nil)
+          tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
           title (:title @state-atom)]
       [:div
