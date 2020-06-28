@@ -78,12 +78,21 @@
                   :on-change (fn [e] (swap! state-atom set-task-key id :text (.. e -target -value)))}]
          [:span {:class (if checked "strikethrough")} text])
         
-       ;; When item is focused on show a "+" button and an "Edit" button
-       ;; to the right to add sub-items or edit current item
+       ;; When item is focused on show a "+" button, a "-" button and an "Edit" button
+       ;; to the right to add sub-items, remove or edit current item
        
        (when focus [:span {:style {:margin-left "5px"
-                                                :font-weight "bold"}
+                                   :background "green"
+                                   :color "white"
+                                   :padding "2px"
+                                   :font-weight "bold"}
                            :on-click (fn [e] (swap! state-atom state/add-entry id))} "+"])
+       (when focus [:span {:style {:margin-left "5px"
+                                   :background "red"
+                                   :color "white"
+                                   :padding "2px"
+                                   :font-weight "bold"}
+                           :on-click (fn [e] (swap! state-atom state/remove-entry id))} "-"])
        (when focus [:span {:style {:margin-left "5px"
                                    :font-weight "bold"}
                            :on-click (fn [e] (swap! state-atom state/edit-entry id))} "Edit"])

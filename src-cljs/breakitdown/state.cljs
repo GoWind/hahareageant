@@ -48,6 +48,12 @@
               updated-state))
       (recur state parent))))
 
+(defn remove-entry
+  "remove item with key id and its children, if any"
+  [state id]
+  (let [remaining-items  (filter (fn [[k v]] (not (or (= id k) (= id (:parent v)))))
+                                 (:results state))]
+    (assoc state :results (into {}  remaining-items))))
 
 (defn local-storage?
   []
@@ -70,7 +76,7 @@
     (let [ls (. js/window -localStorage)]
       (or
         (edn/read-string  (.getItem ls "stored-lists"))
-        {}))))
+        (empty-state)))))
 
 (defn dump-to-storage
   [state]
@@ -96,4 +102,4 @@
                    [v]
                    (swap! state-atom assoc :results (normalize-server-resp v)))
         :error-handler (fn [e]
-                         (swap! state-atom assoc :results (load-from-session-storage)))}))
+                         (reset! state-atom (load-from-session-storage)))}))
