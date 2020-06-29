@@ -81,20 +81,11 @@
        ;; When item is focused on show a "+" button, a "-" button and an "Edit" button
        ;; to the right to add sub-items, remove or edit current item
        
-       (when focus [:span {:style {:margin-left "5px"
-                                   :background "green"
-                                   :color "white"
-                                   :padding "2px"
-                                   :font-weight "bold"}
+       (when focus [:span {:class (classes "addbutton" "pointer")
                            :on-click (fn [e] (swap! state-atom state/add-entry id))} "+"])
-       (when focus [:span {:style {:margin-left "5px"
-                                   :background "red"
-                                   :color "white"
-                                   :padding "2px"
-                                   :font-weight "bold"}
+       (when focus [:span {:class (classes "removebutton" "pointer") 
                            :on-click (fn [e] (swap! state-atom state/remove-entry id))} "-"])
-       (when focus [:span {:style {:margin-left "5px"
-                                   :font-weight "bold"}
+       (when focus [:span {:class (classes "editbutton" "pointer") 
                            :on-click (fn [e] (swap! state-atom state/edit-entry id))} "Edit"])
        (when (and (task-tree? task) expand)
          [:ul {:class "globaltasklist"}
@@ -135,10 +126,12 @@
                   :on-change (fn [e] 
                                (let [edited-title (.. e -target -value)]
                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
-         [:h2 {:on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
+         [:h2 {:class (classes "pointer")
+               :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
+       [:br]
        [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
        [:ul {:class "globaltasklist"}
         (for [task tasks]
           (render-task-tree task state-atom))
-        [:li {:class (classes  "tasktree" "pointer")
-              :on-click #(swap! state-atom state/add-entry "")} "+"]]])))
+        [:button {:class (classes  "tasktree" "pointer" "greenbutton")
+                  :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]])))

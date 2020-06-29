@@ -25,3 +25,33 @@
 .strikethrough {
   text-decoration: line-through;
 }
+
+.greenbutton {
+  border-style: none;
+  margin-top: 12px;
+  background: green;
+  color: white;
+}
+
+.editbutton {
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.addbutton {
+  margin-left: 5px;
+  margin-left: 5px;
+  background : green;
+  color: white;
+  padding: 2px;
+  font-weight :bold;
+}
+
+.removebutton {
+  margin-left: 5px;
+  margin-right: 5px;
+  background: red;
+  color : white;
+  padding : 2px;
+  font-weight : bold;
+}
