@@ -10,7 +10,7 @@
 
 (defn check-todo-item
   [id value]
-  (let [error-handler (fn [e] (println e)) 
+  (let [error-handler (fn [e])
         resp          (POST "http://localhost:3449/check"
                             {:params {"id"    id
                                       "check" value}
@@ -47,6 +47,11 @@
   [task]
   (not (empty? (:subtree task))))
 
+(defn download-data
+  [state-atom filename attribute]
+  [:a {:href (str  "data:text/plain;charset=UTF-8," (str (:results @state-atom)))
+       :on-click #(swap! state-atom dissoc attribute)
+       :download filename} "click here"])
 
 (defn render-task-tree
   [task state-atom]
@@ -69,7 +74,6 @@
                 :checked checked
                 :type "checkbox" 
                 :on-change (fn [e] 
-                             (println "input checkbox")
                              (swap! state-atom update-checked id (.. e -target -checked))
                              (check-todo-item id (.. e -target -checked)))}]
 
@@ -119,17 +123,24 @@
                                   (map  clojure.walk/keywordize-keys (vals (:results @state-atom))))
           tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
-          title (:title @state-atom)]
+          title (:title @state-atom)
+          download (:download @state-atom)]
       [:div
        (if (= edit "title")
          [:input {:value title
-                  :on-change (fn [e] 
-                               (let [edited-title (.. e -target -value)]
-                                 (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
+                    :on-change (fn [e] 
+                                 (let [edited-title (.. e -target -value)]
+                                   (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
          [:h2 {:class (classes "pointer")
                :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
        [:br]
+
        [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
+       [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+
+       (when download
+         (download-data state-atom (str (or title "New List") ".edn") :download))
+
        [:ul {:class "globaltasklist"}
         (for [task tasks]
           (render-task-tree task state-atom))

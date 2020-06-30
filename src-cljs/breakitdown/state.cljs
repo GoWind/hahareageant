@@ -100,6 +100,7 @@
   (GET "http://localhost:3449/search"
        {:handler (fn
                    [v]
-                   (swap! state-atom assoc :results (normalize-server-resp v)))
+                   (swap! state-atom assoc :results (normalize-server-resp v)
+                          :title "core team"))
         :error-handler (fn [e]
                          (reset! state-atom (load-from-session-storage)))}))
