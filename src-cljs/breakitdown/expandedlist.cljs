@@ -21,7 +21,7 @@
    and all of the child items of `id`"
   [state id checked]
   ;;silly, but works
-  (update state :results 
+  (update state :task-lists 
           (fn [r] 
             (into {}
                   ;;k is a todo item, v is the text and related info
@@ -37,11 +37,11 @@
 
 (defn set-task-key
   [state task-id k value]
-  (assoc-in state [:results task-id k] value))
+  (assoc-in state [:task-lists task-id k] value))
 
 (defn update-task-key
   [state task-id k f]
-  (update-in state [:results task-id k] f))
+  (update-in state [:task-lists task-id k] f))
 
 (defn task-tree?
   [task]
@@ -49,7 +49,7 @@
 
 (defn download-data
   [state-atom filename attribute]
-  [:a {:href (str  "data:text/plain;charset=UTF-8," (str (:results @state-atom)))
+  [:a {:href (str  "data:text/plain;charset=UTF-8," (str (:task-lists @state-atom)))
        :on-click #(swap! state-atom dissoc attribute)
        :download filename} "click here"])
 
@@ -120,7 +120,7 @@
   [state-atom]
   (fn []
     (let [grouped-tasks (group-by :parent
-                                  (map  clojure.walk/keywordize-keys (vals (:results @state-atom))))
+                                  (map  clojure.walk/keywordize-keys (vals (:task-lists @state-atom))))
           tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
           title (:title @state-atom)

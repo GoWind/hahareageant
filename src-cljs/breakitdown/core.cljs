@@ -16,13 +16,13 @@
 
 (defn show-results
   [state-atom]
-  (when (some? (:results @state-atom))
+  (when (some? (:task-lists @state-atom))
     [el/render-task-list state-atom]))
 
 
 (defn loading-form
   [state-atom]
-  (when (not (:results @state-atom))
+  (when (not (:task-lists @state-atom))
     [:h1 "Loading"])
   [:div
    [show-results bs/app-state]])
