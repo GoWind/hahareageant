@@ -6,7 +6,8 @@
     [reagent.core :as r]))
 
 (defn empty-state []
-  {:results {}})
+  {:title ""
+   :results {}})
 
 (defonce app-state (r/atom (empty-state)))
 
