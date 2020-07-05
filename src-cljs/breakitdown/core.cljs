@@ -18,8 +18,7 @@
   [state-atom]
   (when (not (:task-lists @state-atom))
     [:h1 "Loading"])
-  [:div
-   [el/render-application bs/app-state]])
+  [el/render-application bs/app-state])
 
 (defn new-list-banner
   "Show a banner, which when clicked on, 
