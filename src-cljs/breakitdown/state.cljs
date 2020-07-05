@@ -89,18 +89,19 @@
    where checklist item is a map, keywordize all the keys,
    in checklist item"
   [m]
-  (into {} 
-        (map 
-          (fn [[k v]] 
-            [k (clojure.walk/keywordize-keys v)])
-          m)))
+  (let [{:strs [title tasks]} m]
+    {:title title
+     :results (into {}
+                    (map
+                      (fn [[k v]]
+                        [k (clojure.walk/keywordize-keys v)])
+                      tasks))}))
 
 (defn fetch-checklist
   [state-atom]
   (GET "http://localhost:3449/search"
        {:handler (fn
                    [v]
-                   (swap! state-atom assoc :results (normalize-server-resp v)
-                          :title "core team"))
+                   (swap! state-atom merge (normalize-server-resp v)))
         :error-handler (fn [e]
                          (reset! state-atom (load-from-session-storage)))}))
