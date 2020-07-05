@@ -1,7 +1,6 @@
 (ns breakitdown.state
   (:require
     [clojure.edn :as edn]
-    [clojure.spec.alpha :as spec]
     [ajax.core :refer [GET POST]]
     [reagent.core :as r]))
 
@@ -10,12 +9,6 @@
    :task-lists {}})
 
 (defonce app-state (r/atom (empty-state)))
-
-
-;;Task list is ultimately a map of things -> things
-(def ::task-lists (spec/map-of any? any?))
-
-(spec/def ::breakitdown-state (spec/keys :req-un [::task-lists]))
 
 (defn edit-entry
   "set :edit for id to true. This implies user
