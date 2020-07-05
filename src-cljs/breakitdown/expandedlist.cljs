@@ -96,6 +96,23 @@
           (for [subtask (:subtree task)]
             [render-task-tree subtask state-atom])])]))
 
+(defn show-tasklists
+  [state-atom]
+  (let [state                @state-atom
+        {:keys [task-lists]} state]
+    [:div
+     [:h3 "Task Lists"]
+
+     [:ul
+      [:li "mad max is here"]
+      [:li "mad money is also here"]
+      [:li "mad donkey is here"]]]
+    #_[:ul
+     (for [task-list-name (keys task-lists)]
+       ^{:key task-list-name}
+       [:li 
+        [:a {:on-click (fn [e] (.preventDefault e)
+                         (assoc state-atom :selected-list task-list-name))}]])]))
 
 (defn generate-tree
   "build the subtree of a parent into builder"
@@ -125,24 +142,29 @@
           edit  (:edit @state-atom)
           title (:title @state-atom)
           download (:download @state-atom)]
-      [:div
-       (if (= edit "title")
-         [:input {:value title
-                    :on-change (fn [e] 
-                                 (let [edited-title (.. e -target -value)]
-                                   (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
-         [:h2 {:class (classes "pointer")
-               :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
-       [:br]
+      [:div#flex_container
 
-       [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
-       [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+       [:div#task_lists_panel
+        [show-tasklists state-atom]]
 
-       (when download
-         (download-data state-atom (str (or title "New List") ".edn") :download))
+       [:div#task_list_view
+        (if (= edit "title")
+          [:input {:value title
+                   :on-change (fn [e] 
+                                (let [edited-title (.. e -target -value)]
+                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
+          [:h2 {:class (classes "pointer")
+                :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
+        [:br]
 
-       [:ul {:class "globaltasklist"}
-        (for [task tasks]
-          (render-task-tree task state-atom))
-        [:button {:class (classes  "tasktree" "pointer" "greenbutton")
-                  :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]])))
+        [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
+        [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+
+        (when download
+          (download-data state-atom (str (or title "New List") ".edn") :download))
+
+        [:ul {:class "globaltasklist"}
+         (for [task tasks]
+           (render-task-tree task state-atom))
+         [:button {:class (classes  "tasktree" "pointer" "greenbutton")
+                   :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]]])))
