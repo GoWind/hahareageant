@@ -35,8 +35,8 @@
         ;;click handler, so get the reference to this in the let
         component (r/current-component)
         handler (fn [e]
-                  (let [dom-node  (rdom/dom-node component)
-                        _         (bs/fetch-checklist bs/app-state)]
+                  (let [dom-node  (rdom/dom-node component)]
+                    (bs/fetch-checklist bs/app-state)
                     (rdom/render
                       [loading-form bs/app-state]
                       (js/document.getElementById "app"))))]
