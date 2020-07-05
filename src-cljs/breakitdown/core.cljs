@@ -14,18 +14,12 @@
 (set! js/console.warn (fn []))
 
 
-(defn show-results
-  [state-atom]
-  (when (some? (:task-lists @state-atom))
-    [el/render-task-list state-atom]))
-
-
 (defn loading-form
   [state-atom]
   (when (not (:task-lists @state-atom))
     [:h1 "Loading"])
   [:div
-   [show-results bs/app-state]])
+   [el/render-task-list bs/app-state]])
 
 (defn new-list-banner
   "Show a banner, which when clicked on, 
