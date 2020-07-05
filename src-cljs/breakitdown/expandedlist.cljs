@@ -114,7 +114,7 @@
                        :subtree  (generate-tree grouped-flat-tree builder (:id entry))})  entries))))))
 
 
-(defn render-task-list
+(defn render-application
   "This is the main fn that is called when the list is
    to be rendered"
   [state-atom]
