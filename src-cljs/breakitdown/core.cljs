@@ -50,8 +50,9 @@
   ;;default handler to set values in the state if the click originates
   ;;outside the container
   (set! (.-onclick  js/document) (fn [e] 
-                                   (if (not (element-contains? (. js/document getElementById "app") (.-target e)))
-                                     ;;TODO: this really leaks abstraction,
+                                   (if (element-contains? (. js/document getElementById "app") (.-target e))
+                                     ;;TODO: this is broken now that app, task_list_view containers
+                                     ;;fill the entire page
                                      ;;figure out a better way to handle this
                                      (swap! bs/app-state dissoc :edit))))
   (bs/fetch-checklist bs/app-state)
@@ -65,6 +66,5 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   #_(do
-      (println "when does this happen")
       (swap! bs/app-state inc)))
 
