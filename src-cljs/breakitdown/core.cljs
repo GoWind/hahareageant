@@ -50,11 +50,9 @@
   ;;default handler to set values in the state if the click originates
   ;;outside the container
   (set! (.-onclick  js/document) (fn [e] 
-                                   (if (element-contains? (. js/document getElementById "app") (.-target e))
-                                     ;;TODO: this is broken now that app, task_list_view containers
-                                     ;;fill the entire page
-                                     ;;figure out a better way to handle this
-                                     (swap! bs/app-state dissoc :edit))))
+                                   (let [id (.. e -target -id)]
+                                     (if (and (not (empty? id))  (not= id (:edit @bs/app-state)))
+                                       (swap! bs/app-state dissoc :edit)))))
   (bs/fetch-checklist bs/app-state)
   (rdom/render [loading-form bs/app-state] (js/document.getElementById "app")))
 

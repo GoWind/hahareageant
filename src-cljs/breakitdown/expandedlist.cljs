@@ -125,13 +125,14 @@
         [show-tasklists state-atom]]
 
        [:div#task_list_view
-        (if (= edit "title")
+        (if (= edit "task-list-title")
           [:input {:value title
                    :on-change (fn [e] 
                                 (let [edited-title (.. e -target -value)]
                                   (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
-          [:h2 {:class (classes "pointer")
-                :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
+          [:h2#task_list_title
+           {:class (classes "pointer")
+            :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])
         [:br]
 
         [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
