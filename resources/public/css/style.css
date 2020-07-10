@@ -55,3 +55,23 @@
   padding : 2px;
   font-weight : bold;
 }
+
+#app {
+  height: 100vh;
+  width: 100wh;
+}
+
+#flex_container {
+  height: 100vh;
+  width: 100wh;
+  display: flex;
+  flex-direction: row;
+}
+
+#task_lists_panel {
+   flex: 0.3;
+}
+
+#task_list_view {
+  flex: 1;
+}

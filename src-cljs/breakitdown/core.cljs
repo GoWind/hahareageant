@@ -50,10 +50,9 @@
   ;;default handler to set values in the state if the click originates
   ;;outside the container
   (set! (.-onclick  js/document) (fn [e] 
-                                   (if (not (element-contains? (. js/document getElementById "app") (.-target e)))
-                                     ;;TODO: this really leaks abstraction,
-                                     ;;figure out a better way to handle this
-                                     (swap! bs/app-state dissoc :edit))))
+                                   (let [id (.. e -target -id)]
+                                     (if (and (not (empty? id))  (not= id (:edit @bs/app-state)))
+                                       (swap! bs/app-state dissoc :edit)))))
   (bs/fetch-checklist bs/app-state)
   (rdom/render [loading-form bs/app-state] (js/document.getElementById "app")))
 
@@ -65,6 +64,5 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   #_(do
-      (println "when does this happen")
       (swap! bs/app-state inc)))
 

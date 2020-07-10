@@ -16,32 +16,11 @@
                                       "check" value}
                              :error-handler   error-handler})]))
 
-(defn update-checked
-  "When a user checks item `id`, check the item
-   and all of the child items of `id`"
-  [state id checked]
-  ;;silly, but works
-  (update state :task-lists 
-          (fn [r] 
-            (into {}
-                  ;;k is a todo item, v is the text and related info
-                  (map (fn [[k v]]
-                         (if (or (= k id) (= (:parent v) id))
-                           [k (assoc v :checked checked)]
-                           [k v]))
-                       r)))))
 
 (defn classes
   [& args]
   (clojure.string/join " " args))
 
-(defn set-task-key
-  [state task-id k value]
-  (assoc-in state [:task-lists task-id k] value))
-
-(defn update-task-key
-  [state task-id k f]
-  (update-in state [:task-lists task-id k] f))
 
 (defn task-tree?
   [task]
@@ -62,11 +41,11 @@
       [:li {:class "tasktree"
             ;;stopPropagation ensure that the ancestor <li>'s mouse-over doesn't get activated as well
             :on-mouse-over  #(do (. % stopPropagation)
-                                 (swap! state-atom set-task-key id :focus true))
+                                 (swap! state-atom state/set-task-key id :focus true))
             :on-mouse-out #(do   (. % stopPropagation)
-                                 (swap! state-atom set-task-key id :focus false))}
+                                 (swap! state-atom state/set-task-key id :focus false))}
 
-       [:span {:on-click #(swap! state-atom update-task-key id :expand not)
+       [:span {:on-click #(swap! state-atom state/update-task-key id :expand not)
                :class    (if tree? "pointer" "")}
         (if (:expand task) "\u25bc" "\u25ba")]
 
@@ -74,12 +53,12 @@
                 :checked checked
                 :type "checkbox" 
                 :on-change (fn [e] 
-                             (swap! state-atom update-checked id (.. e -target -checked))
+                             (swap! state-atom state/update-checked id (.. e -target -checked))
                              (check-todo-item id (.. e -target -checked)))}]
 
        (if (= edit id)
          [:input {:value text
-                  :on-change (fn [e] (swap! state-atom set-task-key id :text (.. e -target -value)))}]
+                  :on-change (fn [e] (swap! state-atom state/set-task-key id :text (.. e -target -value)))}]
          [:span {:class (if checked "strikethrough")} text])
         
        ;; When item is focused on show a "+" button, a "-" button and an "Edit" button
@@ -96,6 +75,20 @@
           (for [subtask (:subtree task)]
             [render-task-tree subtask state-atom])])]))
 
+(defn show-tasklists
+  [state-atom]
+  (let [state                @state-atom
+        {:keys [task-lists]} state]
+    [:div
+     [:h3 "Task Lists"]
+     [:ul
+        (for [task-list-name (keys task-lists)]
+          ^{:key task-list-name}
+          [:li 
+           [:a {:href task-list-name
+                :on-click (fn [e] (.preventDefault e)
+                            (swap! state-atom 
+                                   assoc :selected-list task-list-name))} task-list-name]])]]))
 
 (defn generate-tree
   "build the subtree of a parent into builder"
@@ -119,30 +112,37 @@
    to be rendered"
   [state-atom]
   (fn []
-    (let [grouped-tasks (group-by :parent
-                                  (map  clojure.walk/keywordize-keys (vals (:task-lists @state-atom))))
+    (let [task-list     (state/current-tasklist @state-atom)
+          grouped-tasks (group-by :parent
+                                  (map clojure.walk/keywordize-keys (vals (:tasks task-list))))
           tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
           title (:title @state-atom)
           download (:download @state-atom)]
-      [:div
-       (if (= edit "title")
-         [:input {:value title
-                    :on-change (fn [e] 
-                                 (let [edited-title (.. e -target -value)]
-                                   (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
-         [:h2 {:class (classes "pointer")
-               :on-click #(swap! state-atom state/edit-entry "title")} (or title "New List")])
-       [:br]
+      [:div#flex_container
 
-       [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
-       [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+       [:div#task_lists_panel
+        [show-tasklists state-atom]]
 
-       (when download
-         (download-data state-atom (str (or title "New List") ".edn") :download))
+       [:div#task_list_view
+        (if (= edit "task-list-title")
+          [:input {:value title
+                   :on-change (fn [e] 
+                                (let [edited-title (.. e -target -value)]
+                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
+          [:h2#task_list_title
+           {:class (classes "pointer")
+            :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])
+        [:br]
 
-       [:ul {:class "globaltasklist"}
-        (for [task tasks]
-          (render-task-tree task state-atom))
-        [:button {:class (classes  "tasktree" "pointer" "greenbutton")
-                  :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]])))
+        [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
+        [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+
+        (when download
+          (download-data state-atom (str (or title "New List") ".edn") :download))
+
+        [:ul {:class "globaltasklist"}
+         (for [task tasks]
+           (render-task-tree task state-atom))
+         [:button {:class (classes  "tasktree" "pointer" "greenbutton")
+                   :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]]])))
