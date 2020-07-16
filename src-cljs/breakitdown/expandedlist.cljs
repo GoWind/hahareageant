@@ -118,7 +118,7 @@
                                   (map clojure.walk/keywordize-keys (vals (:tasks task-list))))
           tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
-          title (:title @state-atom)
+          title (:selected-list @state-atom)
           download (:download @state-atom)]
       [:div#flex_container
 
@@ -130,7 +130,7 @@
           [:input {:value title
                    :on-change (fn [e] 
                                 (let [edited-title (.. e -target -value)]
-                                  (swap! state-atom assoc :title (if (empty? edited-title) title edited-title))))}]
+                                  (swap! state-atom assoc :selected-list (if (empty? edited-title) title edited-title))))}]
           [:h2#task_list_title
            {:class (classes "pointer")
             :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])
