@@ -81,6 +81,7 @@
         {:keys [task-lists]} state]
     [:div
      [:h3 "Task Lists"]
+     [:button "New"]
      [:ul
         (for [task-list-name (keys task-lists)]
           ^{:key task-list-name}
