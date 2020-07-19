@@ -77,3 +77,8 @@
   padding-left: 1em;
   flex: 1;
 }
+
+.title_highlight {
+  background: #00BFFF;
+  color: white;
+}

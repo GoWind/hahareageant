@@ -90,6 +90,7 @@
           ^{:key task-list-name}
           [:li 
            [:a {:href task-list-name
+                :class (if (= selected-list task-list-name) "title_highlight" "")
                 :on-click (fn [e] (.preventDefault e)
                             (swap! state-atom 
                                    assoc :selected-list task-list-name))} task-list-name]])]]))
