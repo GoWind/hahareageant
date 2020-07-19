@@ -70,8 +70,10 @@
 
 #task_lists_panel {
    flex: 0.3;
+   border-right: 2px solid black;
 }
 
 #task_list_view {
+  padding-left: 1em;
   flex: 1;
 }
