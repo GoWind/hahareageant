@@ -10,11 +10,33 @@
 
 (defonce app-state (r/atom (empty-state)))
 
+
+;; Special keys that require non-generic logic
+
+(def task-list-id "task-list-title")
+(def title-buffer-id :title-buffer)
+
 (defn edit-entry
   "set :edit for id to true. This implies user
    is currently editing entry at id"
   [state id]
-  (assoc state :edit id))
+  (if (= id task-list-id)
+    (assoc state :edit id :title-buffer (:selected-list state))
+    (assoc state :edit id)))
+
+(defn dissoc-edit-entry
+  [state]
+  (if (not= (:edit state) task-list-id)
+    (dissoc state :edit)
+    ;;special logic to handle editing title of task-list
+    (let [{:keys [task-lists title-buffer selected-list]} state
+          updated-title (if (not= title-buffer selected-list) title-buffer selected-list)
+          updated-task-lists (if (not= title-buffer selected-list)
+                               (clojure.set/rename-keys task-lists {selected-list title-buffer})
+                               task-lists)]
+      (-> state (assoc :task-lists updated-task-lists)
+                (assoc :selected-list updated-title)
+                (dissoc :edit :title-buffer)))))
 
 (defn set-task-key
   [state task-id k value]
@@ -96,10 +118,16 @@
     state))
 
 (defn normalize-server-task-list
-  "Given a map of {\"checklist item id\" -> checklist item},
-   where checklist item is a map,
-   keywordize all the keys in checklist item  
-   and return a vector of [title map]"
+  "Normalize m, that is an entry in the server's response into a Clojure-idiomatic
+   map.
+
+   m is a map of string keys, of which \"title\"
+   is the title of the task-list and \"tasks\" is 
+   a map of a string task id -> task
+   
+   Return a map with a :title key with the value of \"title\" in m
+   and :tasks key with the value of \"tasks\" where each key in \"tasks\"
+   is keywordized."
   [m]
   (let [{:strs [title tasks]} m]
     [title
@@ -111,6 +139,8 @@
                           tasks))}]))
 
 (defn normalize-server-resp
+  "The server's response is expected to be a JSON encoded array (vector) of 
+   maps. Normalize the response in a clojure-idiomatic way"
   [vec-of-maps]
   (let [task-lists (into {} (map normalize-server-task-list vec-of-maps))]
     {:selected-list (nth (first task-lists) 0)

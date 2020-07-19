@@ -119,6 +119,7 @@
           tasks (generate-tree grouped-tasks [] "")
           edit  (:edit @state-atom)
           title (:selected-list @state-atom)
+          title-buffer (:title-buffer @state-atom)
           download (:download @state-atom)]
       [:div#flex_container
 
@@ -126,11 +127,11 @@
         [show-tasklists state-atom]]
 
        [:div#task_list_view
-        (if (= edit "task-list-title")
-          [:input {:value title
+        (if (= edit state/task-list-id)
+          [:input {:value title-buffer
                    :on-change (fn [e] 
                                 (let [edited-title (.. e -target -value)]
-                                  (swap! state-atom assoc :selected-list (if (empty? edited-title) title edited-title))))}]
+                                  (swap! state-atom assoc state/title-buffer-id (if (empty? edited-title) title edited-title))))}]
           [:h2#task_list_title
            {:class (classes "pointer")
             :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])

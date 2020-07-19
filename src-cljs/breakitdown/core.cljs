@@ -56,7 +56,7 @@
                                      ;;Dissoc the :edit key only when the click originates 
                                      ;;in an item that is not being edit at the moment
                                      (if (and (not (empty? id))  (not= id (:edit @bs/app-state)))
-                                       (swap! bs/app-state dissoc :edit)))))
+                                       (swap! bs/app-state bs/dissoc-edit-entry)))))
   (bs/fetch-checklist bs/app-state)
   (rdom/render [loading-form bs/app-state] (js/document.getElementById "app")))
 
