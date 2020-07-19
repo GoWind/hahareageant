@@ -51,6 +51,10 @@
   ;;outside the container
   (set! (.-onclick  js/document) (fn [e] 
                                    (let [id (.. e -target -id)]
+                                     ;;An "editable" component sets the :edit key to the
+                                     ;;id of the component in the state when editing.
+                                     ;;Dissoc the :edit key only when the click originates 
+                                     ;;in an item that is not being edit at the moment
                                      (if (and (not (empty? id))  (not= id (:edit @bs/app-state)))
                                        (swap! bs/app-state dissoc :edit)))))
   (bs/fetch-checklist bs/app-state)
