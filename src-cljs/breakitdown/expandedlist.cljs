@@ -76,12 +76,15 @@
             [render-task-tree subtask state-atom])])]))
 
 (defn show-tasklists
+  "Show a list of the titles of task-lists currently stored.
+   Each title is a link, which, when clicked, will select the task-list
+   with the `title` to be displayed in a different pane"
   [state-atom]
   (let [state                @state-atom
-        {:keys [task-lists]} state]
+        {:keys [task-lists selected-list]} state]
     [:div
      [:h3 "Task Lists"]
-     [:button "New"]
+     [:button {:on-click #(swap! state-atom state/add-new-task-list)} "New"]
      [:ul
         (for [task-list-name (keys task-lists)]
           ^{:key task-list-name}

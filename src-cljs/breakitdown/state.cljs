@@ -87,6 +87,15 @@
                            [k (assoc v :checked checked)]
                            [k v]))
                        r)))))
+(defn add-new-task-list
+  [state]
+  (let [{:keys [task-lists]} state
+        new-title (str "New list" (rand-int 5000))]
+    (if (not (contains? task-lists new-title))
+      (-> state
+          (assoc :selected-list new-title)
+          (assoc-in [:task-lists new-title] {}))
+      (recur state))))
 
 (defn local-storage?
   []
