@@ -1,5 +1,6 @@
 (ns breakitdown.expandedlist
   (:require
+   [clojure.edn :refer [read-string]]
    [ajax.core :refer [GET POST]]
    [cljs-http.client :as http]
    [cljs.core.async :refer [<! take!]]
@@ -27,10 +28,26 @@
   (not (empty? (:subtree task))))
 
 (defn download-data
+  "Generate a link to download the contents of the application's state
+   and remove the `download attribute from the state"
   [state-atom filename attribute]
-  [:a#right {:href (str  "data:text/plain;charset=UTF-8," (str (:task-lists @state-atom)))
+  [:a#right {:href (str  "data:text/plain;charset=UTF-8," (str (dissoc  @state-atom attribute)))
        :on-click #(swap! state-atom dissoc attribute)
        :download filename} "click here"])
+
+(defn restore-data-from-file
+  [state-atom uploadevent attribute]
+  (let [file (aget  (.. uploadevent -target -files ) 0)
+        file-reader (js/FileReader.)
+        on-read (fn [e] 
+                  (try (let [new-state (->  (read-string (. file-reader -result)))]
+                                  (reset! state-atom (dissoc new-state attribute)))
+                                (catch js/Error e
+                                  (do (println e) (js/alert "Unable to restore data")))))
+        on-error (fn [e] (do (println e) (js/alert "Unable to restore data")))]
+    (set! file-reader -onloadend on-read)
+    (set! file-reader -onerror on-error)
+    (. file-reader readAsText file))) 
 
 (defn render-task-tree
   [task state-atom]
@@ -98,7 +115,7 @@
                   :class (if (= selected-list task-list-name) "title_highlight" "")
                   :on-click (fn [e] 
                               (.preventDefault e)
-                              (swap! state-atom assoc :selected-list task-list-name))} 
+                              (swap! state-atom state/update-in-state :selected-list task-list-name))} 
               task-list-name]
              (when (= task-focused task-list-name) 
                [:span {:class (classes "addbutton" "pointer" "removebutton")
@@ -137,13 +154,22 @@
           edit  (:edit @state-atom)
           title (:selected-list @state-atom)
           title-buffer (:title-buffer @state-atom)
-          download (:download @state-atom)]
+          download (:download @state-atom)
+          choose-file (:choose-file @state-atom)]
       [:div#app_box
        [:h2#center "Break it Down - The app"]
+
        [:div#menu_bar
+        (if choose-file
+          [:input#right {:class "choosefile"
+                         :type "file"
+                         :accept "*.edn"
+                         :text "Restore from file"
+                         :on-change (fn [e] (restore-data-from-file state-atom e :choose-file))}]
+          [:button#right {:on-click #(swap! state-atom state/update-in-state :choose-file true)} "Restore from file"])
         (if download
           (download-data state-atom (str (or title "New List") ".edn") :download)
-          [:button#right {:on-click #(swap! state-atom assoc :download true)} "Download"])
+          [:button#right {:on-click #(swap! state-atom state/update-in-state :download true)} "Download"])
         [:button#right {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]]
 
        [:div#flex_container

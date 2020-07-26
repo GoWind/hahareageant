@@ -87,8 +87,13 @@
     (assoc-in state [:task-lists (:selected-list state) :tasks] (into {}  remaining-items))))
 
 (defn remove-task-list
+  "Remove a task list from the state"
   [state task-list-name]
-  (update-in state [:task-lists] dissoc task-list-name))
+  (as-> state n-state
+      (update-in n-state [:task-lists] dissoc task-list-name)
+      (if (= (:selected-list n-state) task-list-name)
+             (assoc n-state :selected-list (first (keys (:task-lists n-state))))
+             n-state)))
 
 (defn update-checked
   "When a user checks item `id`, check the item
