@@ -2,6 +2,12 @@
 
 Break it down is a TODO app, with a twist
 
+1. Keep track of your tasks using task lists
+2. You can have multiple task lists at once.
+3. Too big a task ? No problem. Break it down into subtasks !
+
+### **This App is feature complete**
+
 ## Motivation
 
 1. I wanted to learn front end development
@@ -16,10 +22,7 @@ Tasks are dynamic and can be ever changing
 
 TODO:
 
-1. Provide the ability to remove tasks
-2. Re-order tasks
-3. Show more than 1 tasklist in the browser
-4. Create a production build that doesn't need a CLJS environment
+2. Re-order tasks (WONTFIX, re-ordering isn't that important to me)
 
 
 ## Setup
