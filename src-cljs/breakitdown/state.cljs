@@ -25,6 +25,10 @@
     (assoc state :edit id)))
 
 (defn dissoc-edit-entry
+  "the :edit entry is used to point to the current element (task title, task contents)
+   that is being edit. When the user finished editing and presses a button or clicks outside of the 
+   element being currently edit, `dissoc-edit-entry` is called to ensure that the element being edit's
+   changes are saved"
   [state]
   (if (not= (:edit state) task-list-id)
     (dissoc state :edit)
@@ -39,12 +43,21 @@
                 (dissoc :edit :title-buffer)))))
 
 (defn set-task-key
+  "Set value of key k in the map for task with id `task-id` "
   [state task-id k value]
   (assoc-in state [:task-lists (:selected-list state) :tasks task-id k] value))
 
 (defn update-task-key
   [state task-id k f]
   (update-in state [:task-lists (:selected-list state) :tasks task-id k] f))
+
+(defn update-in-state
+  [state k v]
+  (assoc state k v))
+
+(defn dissoc-in-state
+  [state k]
+  (dissoc state k))
 
 (defn add-entry
   [state parent]
@@ -67,11 +80,15 @@
       (recur state parent))))
 
 (defn remove-entry
-  "remove item with key id and its children, if any"
+  "remove task item with key id and its children, if any"
   [state id]
   (let [remaining-items  (filter (fn [[k v]] (not (or (= id k) (= id (:parent v)))))
                                  (get-in state [:task-lists (:selected-list state) :tasks]))]
     (assoc-in state [:task-lists (:selected-list state) :tasks] (into {}  remaining-items))))
+
+(defn remove-task-list
+  [state task-list-name]
+  (update-in state [:task-lists] dissoc task-list-name))
 
 (defn update-checked
   "When a user checks item `id`, check the item

@@ -28,7 +28,7 @@
 
 (defn download-data
   [state-atom filename attribute]
-  [:a {:href (str  "data:text/plain;charset=UTF-8," (str (:task-lists @state-atom)))
+  [:a#right {:href (str  "data:text/plain;charset=UTF-8," (str (:task-lists @state-atom)))
        :on-click #(swap! state-atom dissoc attribute)
        :download filename} "click here"])
 
@@ -81,19 +81,32 @@
    with the `title` to be displayed in a different pane"
   [state-atom]
   (let [state                @state-atom
-        {:keys [task-lists selected-list]} state]
+        {:keys [task-focused task-lists selected-list]} state]
     [:div
      [:h3 "Task Lists"]
      [:button {:on-click #(swap! state-atom state/add-new-task-list)} "New"]
      [:ul
         (for [task-list-name (keys task-lists)]
-          ^{:key task-list-name}
-          [:li 
-           [:a {:href task-list-name
-                :class (if (= selected-list task-list-name) "title_highlight" "")
-                :on-click (fn [e] (.preventDefault e)
-                            (swap! state-atom 
-                                   assoc :selected-list task-list-name))} task-list-name]])]]))
+            ^{:key task-list-name}
+            [:li {
+                  ;;stopPropagation ensure that the ancestor <li>'s mouse-over doesn't get activated as well
+                  :on-mouse-over #(do (. % stopPropagation)
+                                      (swap! state-atom state/update-in-state :task-focused task-list-name))
+                  :on-mouse-out #(do (. % stopPropagation)
+                                     (swap! state-atom state/dissoc-in-state :task-focused))} 
+             [:a {:href task-list-name
+                  :class (if (= selected-list task-list-name) "title_highlight" "")
+                  :on-click (fn [e] 
+                              (.preventDefault e)
+                              (swap! state-atom assoc :selected-list task-list-name))} 
+              task-list-name]
+             (when (= task-focused task-list-name) 
+               [:span {:class (classes "addbutton" "pointer" "removebutton")
+                       :on-click (fn [e] 
+                                   (let [confirmed (js/confirm "Delete list ?")]
+                                     (if confirmed
+                                       (swap! state-atom state/remove-task-list task-list-name))))} 
+                      "Remove"])])]]))
 
 (defn generate-tree
   "build the subtree of a parent into builder"
@@ -125,30 +138,34 @@
           title (:selected-list @state-atom)
           title-buffer (:title-buffer @state-atom)
           download (:download @state-atom)]
-      [:div#flex_container
+      [:div#app_box
+       [:h2#center "Break it Down - The app"]
+       [:div#menu_bar
+        (if download
+          (download-data state-atom (str (or title "New List") ".edn") :download)
+          [:button#right {:on-click #(swap! state-atom assoc :download true)} "Download"])
+        [:button#right {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]]
 
-       [:div#task_lists_panel
-        [show-tasklists state-atom]]
+       [:div#flex_container
 
-       [:div#task_list_view
-        (if (= edit state/task-list-id)
-          [:input {:value title-buffer
-                   :on-change (fn [e] 
-                                (let [edited-title (.. e -target -value)]
-                                  (swap! state-atom assoc state/title-buffer-id (if (empty? edited-title) title edited-title))))}]
-          [:h2#task_list_title
-           {:class (classes "pointer")
-            :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])
-        [:br]
+        [:div#task_lists_panel
+         [show-tasklists state-atom]]
 
-        [:button {:on-click #(swap! state-atom state/dump-to-storage)} "Save"]
-        [:button {:on-click #(swap! state-atom assoc :download true)} "Download"]
+        [:div#task_list_view
+         (if (= edit state/task-list-id)
+           [:input {:value title-buffer
+                    :on-change (fn [e] 
+                                 (let [edited-title (.. e -target -value)]
+                                   (swap! state-atom assoc state/title-buffer-id (if (empty? edited-title) title edited-title))))}]
+           [:h2#task_list_title
+            {:class (classes "pointer")
+             :on-click #(swap! state-atom state/edit-entry "task-list-title")} (or title "New List")])
+         [:br]
 
-        (when download
-          (download-data state-atom (str (or title "New List") ".edn") :download))
 
-        [:ul {:class "globaltasklist"}
-         (for [task tasks]
-           (render-task-tree task state-atom))
-         [:button {:class (classes  "tasktree" "pointer" "greenbutton")
-                   :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]]])))
+
+         [:ul {:class "globaltasklist"}
+          (for [task tasks]
+            (render-task-tree task state-atom))
+          [:button {:class (classes  "tasktree" "pointer" "greenbutton")
+                    :on-click #(swap! state-atom state/add-entry "")} "+ New Item"]]]]])))

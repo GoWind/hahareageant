@@ -82,3 +82,17 @@
   background: #00BFFF;
   color: white;
 }
+
+#app_box {
+  display: flex;
+  flex-direction: column;
+}
+
+
+#center {
+  text-align: center;
+}
+#right {
+ float: right;
+ margin-right: 1%;
+}
